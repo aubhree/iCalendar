@@ -22,7 +22,7 @@ public class createFile
         printWriter.println("VERSION:2.0");
         printWriter.println(classType());
         printWriter.println("BEGIN:VTIMEZONE");
-        printWriter.println(zoneID(false);
+        printWriter.println(zoneID(false));
         printWriter.println("END:VTIMEZONE");
         printWriter.println("BEGIN:VEVENT");
         printWriter.println(timeStart());
