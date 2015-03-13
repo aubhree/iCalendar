@@ -115,6 +115,10 @@ public class createFile
             JOptionPane.showMessageDialog(null, "Invalid option");
             continue;
          }
+         year = year.trim();
+         while (year.length() <= 3){
+            year = ("0" + year);
+         }
          break;
       }
       while (true){
@@ -126,6 +130,10 @@ public class createFile
             continue;
          }
          if (temp >= 1 && temp <= 12){
+            month = month.trim();
+            if (month.length() == 1){
+               month = ("0" + month);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
@@ -140,6 +148,10 @@ public class createFile
             continue;
          }
          if((((temp == 1) || (temp == 3) || (temp == 5) || (temp == 7) || (temp == 8) || (temp == 10) || (temp == 12))&& (tempDay  <= 31 && tempDay >= 1)) || (((temp == 4) || (temp == 6) || (temp == 9) || (temp == 11))&& (tempDay  <= 30 && tempDay >= 1)) || ((temp == 2) && (tempDay  <= 28 && tempDay >= 1))){
+            day = day.trim();
+            if (day.length() == 1){
+               day = ("0" + day);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
@@ -154,6 +166,10 @@ public class createFile
             continue;
          }
          if (temp >= 1 && temp <= 2359){
+            startTime = startTime.trim();
+            while (startTime.length() <= 3){
+               startTime = ("0" + startTime);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
@@ -182,6 +198,10 @@ public class createFile
             JOptionPane.showMessageDialog(null, "Invalid option");
             continue;
          }
+         year = year.trim();
+         while (year.length() <= 3){
+            year = ("0" + year);
+         }
          break;
       }
       while (true){
@@ -193,6 +213,10 @@ public class createFile
             continue;
          }
          if (temp >= 1 && temp <= 12){
+            month = month.trim();
+            if (month.length() == 1){
+               month = ("0" + month);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
@@ -207,6 +231,10 @@ public class createFile
             continue;
          }
          if((((temp == 1) || (temp == 3) || (temp == 5) || (temp == 7) || (temp == 8) || (temp == 10) || (temp == 12))&& (tempDay  <= 31 && tempDay >= 1)) || (((temp == 4) || (temp == 6) || (temp == 9) || (temp == 11))&& (tempDay  <= 30 && tempDay >= 1)) || ((temp == 2) && (tempDay  <= 28 && tempDay >= 1))){
+            day = day.trim();
+            if (day.length() == 1){
+               day = ("0" + day);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
@@ -221,6 +249,10 @@ public class createFile
             continue;
          }
          if (temp >= 1 && temp <= 2359){
+            startTime = startTime.trim();
+            while (startTime.length() <= 3){
+               startTime = ("0" + startTime);
+            }
             break;
          }else{
             JOptionPane.showMessageDialog(null, "Invalid option");
