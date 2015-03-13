@@ -250,7 +250,7 @@ public class createFile
       
       while(true){
          JOptionPane.showMessageDialog(null, "Enter the Event Priority (0 - 9)");
-         priority = JOptionPane.showInputDialog("e.g. 0 (no priority), 9 (highest priority): ");
+         priority = JOptionPane.showInputDialog("e.g. 0 (no priority), 1 (highest priority): ");
          try{
             temp = Integer.parseInt (priority);
          }catch (NumberFormatException e){
