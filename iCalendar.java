@@ -7,22 +7,17 @@ import javax.swing.JOptionPane;
 * @author TeamOrange
 */
 
+//java.io;
+
 public class iCalendar {
   
   public static void main(String [] args) throws FileNotFoundException {
-    
-    int numEvent = 1;
-    String uzone = "";
-    String newEvent = "yes";
 
-    createFile newFile = new createFile();
+    String uzone = "";
+    int numEvent = 1;
     
-    while (newEvent.equals("yes")) {
+    createFile newFile = new createFile();
       
-      numEvent = newFile.printToFile(numEvent, uzone);  
-      newEvent = JOptionPane.showInputDialog("Do you wish to enter in another event?: ");
-      newEvent = newEvent.toLowerCase();
-    }
+    newFile.printToFile(uzone, numEvent);  
   }
 }
-
