@@ -22,7 +22,9 @@ public class createFile {
   *  @return int tracks amount of events
   */
   
-  public int printToFile(int numEvent, String uzone) throws FileNotFoundException {
+  public int printToFile(String uzone, int numEvent) throws FileNotFoundException {
+    
+    String newEvent = "yes";
     
     File file = new File("ourCalendar" + numEvent + ".ICS");
     PrintWriter printWriter = new PrintWriter(file);
@@ -31,8 +33,8 @@ public class createFile {
     printWriter.println("VERSION:2.0");
     printWriter.println(classType());
     printWriter.println("BEGIN:VTIMEZONE");
-    //pfTZ(numEvent, printWriter, uzone);
-    printWriter.println(zoneID(false));
+    uzone = pfTZ(numEvent, printWriter, uzone);
+    //printWriter.println(zoneID(false));
     printWriter.println("END:VTIMEZONE");
     printWriter.println("BEGIN:VEVENT");
     printWriter.println(time());
@@ -44,31 +46,43 @@ public class createFile {
     
     printWriter.close();
     
-    return numEvent++;
+    numEvent++;
+    
+    while (newEvent.equals("yes")) {
+      
+      newEvent = JOptionPane.showInputDialog("Do you wish to enter more events for this day?: ");
+      newEvent = newEvent.toLowerCase();
+      numEvent = printToFile(uzone, numEvent);   
+    }
+    
+    return numEvent;
   }
   
   /**
-   * Checks if first event entered. If it is first event, method call
-   * to zoneID(boolean). If event is greater than one, use same time zone.
-   * 
-   * @param numEvent (int)
-   * @param printWriter (PrintWriter)
-   * @param uzone (String)
-   */
+  *  Checks if first event entered. If it is first event, method call
+  *  to zoneID(boolean). If event is greater than one, use same time zone.
+  * 
+  *  @param numEvent (int)
+  *  @param printWriter (PrintWriter)
+  *  @param uzone (String)
+  *  @return String
+  */
   
-  /* public void pfTZ(int numEvent, PrintWriter printWriter, String uzone) {
+  public String pfTZ(int numEvent, PrintWriter printWriter, String uzone) {
     
     if (numEvent == 1) {
       
       uzone = zoneID(false);
-      printWriter.println(uzone);
+      printWriter.println("TZID:" + uzone);
     }
     
     else {
       
       printWriter.println("TZID:" + uzone);
     }
-  } */ 
+    
+    return uzone;
+  }
 
   /**
   *  Takes class type input from the user e.g. PUBLIC, PRIVATE, or CONFIDENTIAL.
@@ -171,7 +185,7 @@ public class createFile {
         }
       }
          
-      return ("TZID:" + zone);
+      return (zone);
     }
   }
    
