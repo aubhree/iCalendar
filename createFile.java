@@ -22,13 +22,9 @@ public class createFile {
   *  @return int tracks amount of events
   */
   
-  public int printToFile(String uzone, int numEvent) throws FileNotFoundException {
+  public int printToFile(String uzone, int numEvent, String newEvent, File file, String fmtDate) throws FileNotFoundException {
     
-    String newEvent = "yes";
-    
-    File file = new File("ourCalendar" + numEvent + ".ICS");
     PrintWriter printWriter = new PrintWriter(file);
-    
     printWriter.println("BEGIN:VCALENDAR");
     printWriter.println("VERSION:2.0");
     printWriter.println(classType());
@@ -37,14 +33,15 @@ public class createFile {
     //printWriter.println(zoneID(false));
     printWriter.println("END:VTIMEZONE");
     printWriter.println("BEGIN:VEVENT");
-    printWriter.println(time());
+    if (numEvent == 1) {
+      fmtDate = date();
+    }
+    printWriter.println(time(fmtDate));
     printWriter.println(location());
     printWriter.println(priority());
     printWriter.println(summary());
     printWriter.println("END:VEVENT");
     printWriter.println("END:VCALENDAR"); 
-    
-    printWriter.close();
     
     numEvent++;
     
@@ -52,9 +49,14 @@ public class createFile {
       
       newEvent = JOptionPane.showInputDialog("Do you wish to enter more events for this day?: ");
       newEvent = newEvent.toLowerCase();
-      numEvent = printToFile(uzone, numEvent);   
+      
+      if (newEvent.equals("yes")) {
+        
+        numEvent = printToFile(uzone, numEvent, newEvent, file, fmtDate);
+      }  
     }
     
+    printWriter.close();
     return numEvent;
   }
   
@@ -72,7 +74,7 @@ public class createFile {
     
     if (numEvent == 1) {
       
-      uzone = zoneID(false);
+      uzone = zoneID(true);
       printWriter.println("TZID:" + uzone);
     }
     
@@ -134,20 +136,22 @@ public class createFile {
   
   public String zoneID(boolean auto) {
     
+    String zone = "INVALID";
+    
     if (auto) {
         
       //auto creates the time zone from local time zone
       TimeZone tZone = TimeZone.getDefault();
       JOptionPane.showMessageDialog(null, "Time Zone: " + tZone.getID());
-        
-      return ("TZID:" + tZone.getID()); 
+      
+      zone = tZone.getID();
+      return (zone); 
     } 
       
     else { 
          
       //manual creation of time zone
-      String zone = "INVALID";
-      
+            
       while (zone.equals("INVALID")) {
             
         zone = JOptionPane.showInputDialog("Enter your time zone (e.g. HST, PST, CST, EST): ");
@@ -188,26 +192,24 @@ public class createFile {
       return (zone);
     }
   }
-   
-  /**
-  *  Allows user to enter Event Start Time.
-  *  Checks for valid numbers and dates.
-  *  
-  *  @param  none
-  *  @return String 
-  */
   
-  public String time() {
+  /**
+   * Allows user to enter year, month, and day for event.
+   * Checks for valid numbers and dates.
+   * 
+   * @param
+   * @return String
+   */
+  
+  public String date() {
     
-    int temp, temp1, temp2;
+    int temp;
     int tempDay;
-      
-    String year, month, day, startTime, endTime, dateStart, dateEnd, fmtStartTime, fmtEndTime = "";
-      
-    JOptionPane.showMessageDialog(null, "Next up, enter Event Start Time: ");
-      
+    
+    String year, month, day, fmtDate = "";
+    
     while (true) {
-         
+      
       try {
         year = JOptionPane.showInputDialog("Enter the Year (e.g. 2015): ");
         temp = Integer.parseInt(year);
@@ -274,6 +276,31 @@ public class createFile {
         JOptionPane.showMessageDialog(null, "Invalid option");
       }
     }
+    
+    fmtDate = (year + month + day);
+    return fmtDate;
+  }
+  
+  
+  /**
+  *  Allows user to enter Event Start and End Time.
+  *  Checks for valid numbers.
+  *  
+  *  @param  none
+  *  @return String 
+  */
+  
+  public String time(String fmtDate) {
+    
+    int temp1, temp2;
+    int size;
+      
+    String startTime, endTime, dateStart, dateEnd, fmtStartTime, fmtEndTime = "";
+    String year = fmtDate.substring(0, 4);
+    String month = fmtDate.substring(4, 6);
+    String day = fmtDate.substring(6);
+      
+    JOptionPane.showMessageDialog(null, "Next up, enter Event Start Time: ");
       
     while (true) {
         
@@ -291,7 +318,18 @@ public class createFile {
       }
         
       if (temp1 >= 1 && temp1 <= 2359) {
-    
+        
+        size = startTime.length();
+        
+        //Military Time has 4 digits. e.g. 0030 is 1230AM
+        if (size < 4) {
+          
+          for (int i = 4; i > size; i--) {
+            
+            startTime = "0" + startTime;
+          }
+        }
+        
         break;
       }
         
@@ -317,7 +355,14 @@ public class createFile {
       }
         
       if ((temp2 >= 1 && temp2 <= 2359) && (temp2 > temp1)) {
-            
+        
+        size = endTime.length();
+        
+        for (int i = 4; i > size; i--) {
+          
+          endTime = "0" + endTime;
+        }
+        
         break;
       }
         
@@ -330,10 +375,10 @@ public class createFile {
     dateStart = (month + "/" + day + "/" + year + " " + startTime);
     dateEnd = (month + "/" + day + "/" + year + " " + endTime);
     JOptionPane.showMessageDialog(null, "Event starts at: " + dateStart + ", Event ends at: " + dateEnd);
-    fmtStartTime = (year + month + day + "T" + startTime + "00");
-    fmtEndTime = (year + month + day + "T" + endTime + "00"); 
+    fmtStartTime = (fmtDate + "T" + startTime + "00");
+    fmtEndTime = (fmtDate + "T" + endTime + "00"); 
     
-    return ("DTSTART:" + fmtStartTime + "\nDTEND:" + fmtStartTime);  
+    return ("DTSTART:" + fmtStartTime + "\nDTEND:" + fmtEndTime);  
   }  
   
   /**
