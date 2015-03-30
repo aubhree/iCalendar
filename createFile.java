@@ -1,7 +1,7 @@
 import java.io.*;
 import javax.swing.*;
 import java.util.TimeZone;
-import java.lang.NumberFormatException;
+//import java.lang.NumberFormatException;
  
 /**
 * createFile.java
@@ -17,31 +17,78 @@ public class createFile {
   *  and writes to ourCalendar.ICS creating an iCalendar file
   *  to be read by a calendar (e.g. google calendar).
   * 
-  *  @param none
+  *  @param  numEvent (int)
   *  @throws FileNotFoundException 
+  *  @return int tracks amount of events
   */
   
-  public void printToFile() throws FileNotFoundException {
-  
-    File file = new File("ourCalendar.ICS");
-    PrintWriter printWriter = new PrintWriter(file);
+  public int printToFile(String uzone, int numEvent, File file, String fmtDate, PrintWriter printWriter) throws FileNotFoundException {
     
     printWriter.println("BEGIN:VCALENDAR");
     printWriter.println("VERSION:2.0");
     printWriter.println(classType());
     printWriter.println("BEGIN:VTIMEZONE");
-    printWriter.println(zoneID(false));
+    uzone = pfTZ(numEvent, printWriter, uzone);
     printWriter.println("END:VTIMEZONE");
     printWriter.println("BEGIN:VEVENT");
-    printWriter.println(timeStart());
-    printWriter.println(timeEnd());
+    
+    if (numEvent == 1) {
+      fmtDate = date();
+    }
+    
+    printWriter.println(time(fmtDate));
     printWriter.println(location());
     printWriter.println(priority());
     printWriter.println(summary());
     printWriter.println("END:VEVENT");
     printWriter.println("END:VCALENDAR"); 
     
-    printWriter.close();
+    numEvent++;
+    
+    while (true) {
+      
+      int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
+      if (reply == JOptionPane.YES_OPTION) {
+        
+        numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter);
+        
+        return numEvent;
+      }
+      
+      else {
+        
+        JOptionPane.showMessageDialog(null, "Goodbye.");
+        printWriter.close();
+        System.exit(0);
+        
+      }  
+    }
+  }
+  
+  /**
+  *  Checks if first event entered. If it is first event, method call
+  *  to zoneID(boolean). If event is greater than one, use same time zone.
+  * 
+  *  @param numEvent (int)
+  *  @param printWriter (PrintWriter)
+  *  @param uzone (String)
+  *  @return String
+  */
+  
+  public String pfTZ(int numEvent, PrintWriter printWriter, String uzone) {
+    
+    if (numEvent == 1) {
+      
+      uzone = zoneID(true);
+      printWriter.println("TZID:" + uzone);
+    }
+    
+    else {
+      
+      printWriter.println("TZID:" + uzone);
+    }
+    
+    return uzone;
   }
 
   /**
@@ -94,20 +141,21 @@ public class createFile {
   
   public String zoneID(boolean auto) {
     
+    String zone = "INVALID";
+    
     if (auto) {
         
       //auto creates the time zone from local time zone
       TimeZone tZone = TimeZone.getDefault();
       JOptionPane.showMessageDialog(null, "Time Zone: " + tZone.getID());
-        
-      return ("TZID:" + tZone.getID()); 
-    }
       
-    else {
+      zone = tZone.getID();
+      return (zone); 
+    } 
+      
+    else { 
          
       //manual creation of time zone
-      String zone = "INVALID";
-      
       while (zone.equals("INVALID")) {
             
         zone = JOptionPane.showInputDialog("Enter your time zone (e.g. HST, PST, CST, EST): ");
@@ -145,29 +193,28 @@ public class createFile {
         }
       }
          
-      return ("TZID:" + zone);
+      return (zone);
     }
   }
-   
-  /**
-  *  Allows user to enter Event Start Time.
-  *  Checks for valid numbers and dates.
-  *  
-  *  @param  none
-  *  @return String 
-  */
   
-  public String timeStart() {
+  /**
+   * Allows user to enter year, month, and day for event.
+   * Checks for valid numbers and dates.
+   * 
+   * @param
+   * @return String
+   */
+  
+  public String date() {
     
     int temp;
     int tempDay;
-      
-    String year, month, day, startTime, date, fmtStartTime = "";
-      
-    JOptionPane.showMessageDialog(null, "Next up, enter Event Start Time: ");
-      
+    int size;
+    
+    String year, month, day, fmtDate = "";
+    
     while (true) {
-         
+      
       try {
         year = JOptionPane.showInputDialog("Enter the Year (e.g. 2015): ");
         temp = Integer.parseInt(year);
@@ -179,8 +226,16 @@ public class createFile {
           
         continue;
       }
+      
+      if ((temp >= 2015) && (temp <= 9999)) {
         
-      break;
+        break;
+      }
+      
+      else {
+        
+        JOptionPane.showMessageDialog(null, "Enter a year between 2015 and 9999: ");
+      }
     }
       
     while (true) {
@@ -200,6 +255,14 @@ public class createFile {
         
       if (temp >= 1 && temp <= 12) {
     
+        size = month.length();
+        
+        //Must have 2 digits for day. e.g. 1st of the month is 01.
+        if (size < 2) {
+                  
+            month = "0" + month;
+        }
+        
         break;
       }
         
@@ -226,6 +289,14 @@ public class createFile {
         
       if((((temp == 1) || (temp == 3) || (temp == 5) || (temp == 7) || (temp == 8) || (temp == 10) || (temp == 12))&& (tempDay  <= 31 && tempDay >= 1)) || (((temp == 4) || (temp == 6) || (temp == 9) || (temp == 11))&& (tempDay  <= 30 && tempDay >= 1)) || ((temp == 2) && (tempDay  <= 28 && tempDay >= 1))) {
             
+        size = day.length();
+        
+        //Must have 2 digits for day. e.g. 1st of the month is 01.
+        if (size < 2) {
+                  
+            day = "0" + day;
+        }
+      
         break;
       }
         
@@ -234,13 +305,38 @@ public class createFile {
         JOptionPane.showMessageDialog(null, "Invalid option");
       }
     }
+    
+    fmtDate = (year + month + day);
+    return fmtDate;
+  }
+  
+  
+  /**
+  *  Allows user to enter Event Start and End Time.
+  *  Checks for valid numbers.
+  *  
+  *  @param  none
+  *  @return String 
+  */
+  
+  public String time(String fmtDate) {
+    
+    int temp1, temp2;
+    int size;
+      
+    String startTime, endTime, dateStart, dateEnd, fmtStartTime, fmtEndTime = "";
+    String year = fmtDate.substring(0, 4);
+    String month = fmtDate.substring(4, 6);
+    String day = fmtDate.substring(6);
+      
+    JOptionPane.showMessageDialog(null, "Next up, enter Event Start Time: ");
       
     while (true) {
         
       try {
           
         startTime = JOptionPane.showInputDialog("Enter the Start Time (e.g. 0000 to 2359): ");
-        temp = Integer.parseInt(startTime);
+        temp1 = Integer.parseInt(startTime);
         }
         
       catch (NumberFormatException e) {
@@ -250,75 +346,19 @@ public class createFile {
         continue;
       }
         
-      if (temp >= 1 && temp <= 2359) {
-    
-        break;
-      }
+      if (temp1 >= 1 && temp1 <= 2359) {
         
-      else {
-            
-        JOptionPane.showMessageDialog(null, "Invalid option");
-      }
-    }
-      
-    date = (month + "/" + day + "/" + year + " " + startTime);
-    JOptionPane.showMessageDialog(null, "Event starts at: " + date);
-    fmtStartTime = (year + month + day + "T" + startTime + "00");
-      
-    return ("DTSTART:" + fmtStartTime);  
-  }
-    
-  /**
-  *  Allows user to enter an Event End Time.
-  *  Checks for valid numbers and dates.
-  * 
-  *  @return String
-  */
-  
-  public String timeEnd() {
-    
-    int temp;
-    int tempDay;
-     
-    String year, month, day, startTime, date, fmtEndTime = "";
-      
-    JOptionPane.showMessageDialog(null, "Next up, enter Event End Time: ");
-    
-    while (true) {
-      
-      try {
+        size = startTime.length();
         
-        year = JOptionPane.showInputDialog("Enter the Year (e.g. 2015): ");
-        temp = Integer.parseInt(year);
-      }
-        
-      catch (NumberFormatException e) {
-            
-        JOptionPane.showMessageDialog(null, "Invalid option");
+        //Military Time has 4 digits. e.g. 0030 is 1230AM
+        if (size < 4) {
           
-        continue;
-      }
-        
-      break;
-    }
-      
-    while (true) {
-         
-      try {
-    
-        month = JOptionPane.showInputDialog("Enter the numerical Month (e.g. 01 - 12): ");
-        temp = Integer.parseInt(month);
-      }
-        
-      catch (NumberFormatException e) {
+          for (int i = 4; i > size; i--) {
             
-        JOptionPane.showMessageDialog(null, "Invalid option");
+            startTime = "0" + startTime;
+          }
+        }
         
-        continue;
-      }
-        
-      if (temp >= 1 && temp <= 12) {
-            
         break;
       }
         
@@ -329,37 +369,11 @@ public class createFile {
     }
     
     while (true) {
-         
-      try {
-            
-        day = JOptionPane.showInputDialog("Enter the Day (e.g. 01 - 31): ");
-        tempDay = Integer.parseInt(day);
-      }
-        
-      catch (NumberFormatException e) {
-          
-        JOptionPane.showMessageDialog(null, "Invalid option");
-          
-        continue;
-      }
-        
-      if((((temp == 1) || (temp == 3) || (temp == 5) || (temp == 7) || (temp == 8) || (temp == 10) || (temp == 12))&& (tempDay  <= 31 && tempDay >= 1)) || (((temp == 4) || (temp == 6) || (temp == 9) || (temp == 11))&& (tempDay  <= 30 && tempDay >= 1)) || ((temp == 2) && (tempDay  <= 28 && tempDay >= 1))) {
-            
-        break;
-      }
-        
-      else {
-            
-        JOptionPane.showMessageDialog(null, "Invalid option");
-      }
-    }
       
-    while (true) {
-         
       try {
             
-        startTime = JOptionPane.showInputDialog("Enter the End Time (e.g. 0000 to 2359): ");
-        temp = Integer.parseInt(startTime);
+        endTime = JOptionPane.showInputDialog("Enter the End Time (e.g. 0000 to 2359): ");
+        temp2 = Integer.parseInt(endTime);
       }
         
       catch (NumberFormatException e) {
@@ -369,8 +383,15 @@ public class createFile {
         continue;
       }
         
-      if (temp >= 1 && temp <= 2359) {
-            
+      if ((temp2 >= 1 && temp2 <= 2359) && (temp2 > temp1)) {
+        
+        size = endTime.length();
+        
+        for (int i = 4; i > size; i--) {
+          
+          endTime = "0" + endTime;
+        }
+        
         break;
       }
         
@@ -380,15 +401,17 @@ public class createFile {
       }
     }
       
-    date = (month + "/" + day + "/" + year + " " + startTime);
-    JOptionPane.showMessageDialog(null, "Event ends at: " + date);
-    fmtEndTime = (year + month + day + "T" + startTime + "00");
-      
-    return ("DTEND:" + fmtEndTime);
-  }
+    dateStart = (month + "/" + day + "/" + year + " " + startTime);
+    dateEnd = (month + "/" + day + "/" + year + " " + endTime);
+    JOptionPane.showMessageDialog(null, "Event starts at: " + dateStart + ", Event ends at: " + dateEnd);
+    fmtStartTime = (fmtDate + "T" + startTime + "00");
+    fmtEndTime = (fmtDate + "T" + endTime + "00"); 
+    
+    return ("DTSTART:" + fmtStartTime + "\nDTEND:" + fmtEndTime);  
+  }  
   
   /**
-  *  Allows user ot enter the location of the event.
+  *  Allows user to enter the location of the event.
   * 
   *  @return String  
   */
@@ -433,7 +456,9 @@ public class createFile {
       }
         
       if (temp >= 0 && temp <= 9) {
-            
+        
+        priority = priority.replace("0", "");
+        
         JOptionPane.showMessageDialog(null, "Priority: " + priority);
           
         break;
@@ -461,5 +486,6 @@ public class createFile {
     return ("SUMMARY:" + summary);
   }
 }
+
 
 
