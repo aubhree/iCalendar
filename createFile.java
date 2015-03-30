@@ -22,20 +22,20 @@ public class createFile {
   *  @return int tracks amount of events
   */
   
-  public int printToFile(String uzone, int numEvent, String newEvent, File file, String fmtDate) throws FileNotFoundException {
+  public int printToFile(String uzone, int numEvent, File file, String fmtDate, PrintWriter printWriter) throws FileNotFoundException {
     
-    PrintWriter printWriter = new PrintWriter(file);
     printWriter.println("BEGIN:VCALENDAR");
     printWriter.println("VERSION:2.0");
     printWriter.println(classType());
     printWriter.println("BEGIN:VTIMEZONE");
     uzone = pfTZ(numEvent, printWriter, uzone);
-    //printWriter.println(zoneID(false));
     printWriter.println("END:VTIMEZONE");
     printWriter.println("BEGIN:VEVENT");
+    
     if (numEvent == 1) {
       fmtDate = date();
     }
+    
     printWriter.println(time(fmtDate));
     printWriter.println(location());
     printWriter.println(priority());
@@ -45,19 +45,24 @@ public class createFile {
     
     numEvent++;
     
-    while (newEvent.equals("yes")) {
+    while (true) {
       
-      newEvent = JOptionPane.showInputDialog("Do you wish to enter more events for this day?: ");
-      newEvent = newEvent.toLowerCase();
-      
-      if (newEvent.equals("yes")) {
+      int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
+      if (reply == JOptionPane.YES_OPTION) {
         
-        numEvent = printToFile(uzone, numEvent, newEvent, file, fmtDate);
+        numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter);
+        
+        return numEvent;
+      }
+      
+      else {
+        
+        JOptionPane.showMessageDialog(null, "Goodbye.");
+        printWriter.close();
+        System.exit(0);
+        
       }  
     }
-    
-    printWriter.close();
-    return numEvent;
   }
   
   /**
@@ -151,7 +156,6 @@ public class createFile {
     else { 
          
       //manual creation of time zone
-            
       while (zone.equals("INVALID")) {
             
         zone = JOptionPane.showInputDialog("Enter your time zone (e.g. HST, PST, CST, EST): ");
@@ -205,6 +209,7 @@ public class createFile {
     
     int temp;
     int tempDay;
+    int size;
     
     String year, month, day, fmtDate = "";
     
@@ -221,8 +226,16 @@ public class createFile {
           
         continue;
       }
+      
+      if ((temp >= 2015) && (temp <= 9999)) {
         
-      break;
+        break;
+      }
+      
+      else {
+        
+        JOptionPane.showMessageDialog(null, "Enter a year between 2015 and 9999: ");
+      }
     }
       
     while (true) {
@@ -242,6 +255,14 @@ public class createFile {
         
       if (temp >= 1 && temp <= 12) {
     
+        size = month.length();
+        
+        //Must have 2 digits for day. e.g. 1st of the month is 01.
+        if (size < 2) {
+                  
+            month = "0" + month;
+        }
+        
         break;
       }
         
@@ -268,6 +289,14 @@ public class createFile {
         
       if((((temp == 1) || (temp == 3) || (temp == 5) || (temp == 7) || (temp == 8) || (temp == 10) || (temp == 12))&& (tempDay  <= 31 && tempDay >= 1)) || (((temp == 4) || (temp == 6) || (temp == 9) || (temp == 11))&& (tempDay  <= 30 && tempDay >= 1)) || ((temp == 2) && (tempDay  <= 28 && tempDay >= 1))) {
             
+        size = day.length();
+        
+        //Must have 2 digits for day. e.g. 1st of the month is 01.
+        if (size < 2) {
+                  
+            day = "0" + day;
+        }
+      
         break;
       }
         
@@ -427,7 +456,9 @@ public class createFile {
       }
         
       if (temp >= 0 && temp <= 9) {
-            
+        
+        priority = priority.replace("0", "");
+        
         JOptionPane.showMessageDialog(null, "Priority: " + priority);
           
         break;
@@ -455,5 +486,6 @@ public class createFile {
     return ("SUMMARY:" + summary);
   }
 }
+
 
 
