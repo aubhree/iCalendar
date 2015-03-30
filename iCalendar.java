@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import javax.swing.JOptionPane;
 
 /**
@@ -14,15 +15,17 @@ public class iCalendar {
   
   public static void main(String [] args) throws FileNotFoundException {
 
-    String uzone = "";
     int numEvent = 1;
-    String newEvent = "yes";
+    
+    String uzone = "";
     String fmtDate = "";
     
     createFile newFile = new createFile();
     File file = new File("ourCalendar.ICS");
+    PrintWriter printWriter = new PrintWriter(file);
       
-    newFile.printToFile(uzone, numEvent, newEvent, file, fmtDate);  
+    newFile.printToFile(uzone, numEvent, file, fmtDate, printWriter);  
   }
 }
+
 
