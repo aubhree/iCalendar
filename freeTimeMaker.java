@@ -466,7 +466,7 @@ public class freeTimeMaker {
 			
 				allICSFilesRead = 1;
 				ftSuccess = ftSlots();
-				testFreeTime();
+				//testFreeTime();
 				
 				//freeTimes TreeMap was successfully created
 				if(ftSuccess == 0){
