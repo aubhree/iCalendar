@@ -38,6 +38,7 @@ public class freeTimeMaker {
 	 * 				-1 ERROR: IOException occurred
 	 * 				-2 ERROR: An event's time zone is different from the set time zone 
 	 * 				-3 ERROR: An event's start and/or end time is invalid (different date from set date, negative #, start > end)
+	 * 				-4 ERROR: icsFile missing an important event field(s) [TZID, DTSTART, DTEND]
 	 */
 	public int busySlots(String icsFile){
 		
@@ -46,16 +47,21 @@ public class freeTimeMaker {
 		String tz = "";
 		String eventStartTime = "";
 		String eventEndTime = "";
-		String eventDate = "";
-		
+		String eventStartDate = "";
+		String eventEndDate = "";
 	    
 	    String [] eventInfo = new String[2];
 	    String [] eventTimes = new String[2];
 	    
 	    int start = 0;
 	    int end = 0;
-	    
 	    int success = 0;
+	    int hours = 0;
+	    int minutes = 0;
+	    int seconds = 0;
+	    int year = 0;
+	    int month = 0;
+	    int day = 0;
 	    
 		try{
 			
@@ -64,54 +70,37 @@ public class freeTimeMaker {
 			
 			while ((line = reader.readLine()) != null) {
     	    	
-				if(line.contains("TZID")){
+				if(line.contains("BEGIN:VEVENT")){
+					
+					eventName = "";
+					
+				}
+				else if(line.contains("TZID") && success == 0){
     	        	
     	        	eventInfo = line.split(":", 2);
     	        	tz = eventInfo[1];
     	        	
     	        	//Establishes the time zone all events must be on (performed only once)
-    	        	if(stTz.equals("")){
+	        		if(stTz.equals("")){
     	        		
     	        		stTz = tz;
-    	        		
-    	        	}
-    	        	else{
-    	        		
-    	        		//Verifies the time zone all events must be on
-    	        		if(!stTz.equals(tz)){
     	        			
-    	        			success = -2;
-    	        			break;
-    	        			
-    	        		}
-    	        		
-    	        	}
+	        		}
+ 	        		//Verifies valid TZID 
+    	        	if(tz.length() == 0 || tz.contains(" ") || !tz.contains("/") || !stTz.equals(tz)){
+	        			
+	        			success = -2;
+	        			
+	        		}
     	        	
     	        }
 				
-				else if(line.contains("DTSTART")){
+				else if(line.contains("DTSTART") && success == 0){
     	        	
     	        	eventInfo = line.split(":", 2);
     	        	eventTimes = eventInfo[1].split("T", 2);
     	        	eventStartTime = eventTimes[1];
-    	        	eventDate = eventTimes[0];
-    	        	
-    	        	//Establishes the date all events must be on (performed only once)
-    	        	if(stDate.equals("")){
-    	        		
-    	        		stDate = eventDate;
-    	        		
-    	        	}
-    	        	else{
-    	        		
-    	        		//Verifies the date all events must be one
-    	        		if(!stDate.equals(eventDate)){
-    	        			
-    	        			success = -3;
-    	        			
-    	        		}
-    	        		
-    	        	}
+    	        	eventStartDate = eventTimes[0];
     	        	
     	        	try{
     	        		
@@ -124,45 +113,89 @@ public class freeTimeMaker {
     	        		
     	        	}
     	        	
-    	        }
-    	        else if(line.contains("DTEND")){
-    	        	
-    	        	eventInfo = line.split(":", 2);
-    	        	eventTimes = eventInfo[1].split("T", 2);
-    	        	eventEndTime = eventTimes[1];
-    	        	eventDate = eventTimes[0];
-    	        	
+    	        	//Establishes the date all events must be on (performed only once)
     	        	if(stDate.equals("")){
     	        		
-    	        		//Establishes the date all events must be on (performed only once)
-    	        		stDate = eventDate;
+    	        		stDate = eventStartDate;
+    	        		
+    	        	}
+    	        	//Verifies valid DTSTART field
+    	        	if(start < 0 || start >= 240000|| eventStartTime.length() != 6 || !stDate.equals(eventStartDate) || eventStartDate.length() != 8 || !eventInfo[1].contains("T")){
+    	        		
+    	        		success = -3;
     	        		
     	        	}
     	        	else{
     	        		
-    	        		//Verifies the date all events must be on
-    	        		if(!stDate.equals(eventDate)){
+    	        		//Date
+    	        		year = Integer.parseInt(eventStartDate.substring(0, 4));
+    	        		month = Integer.parseInt(eventStartDate.substring(4, 6));
+    	        		day = Integer.parseInt(eventStartDate.substring(6, 8));
+    	        		
+    	        		//Invalid Date
+    	        		if(year < 2015 || year > 9999 || month > 12 || month < 1 || (month == 2 && day > 28) || day > 31 || day < 1){
+    	        			
+    	        				success = -3;
+    	       
+    	        		}
+    	        		
+    	        		//Time
+    	        		hours = Integer.parseInt(eventStartTime.substring(0, 2));
+    	        		minutes = Integer.parseInt(eventStartTime.substring(2, 4));
+    	        		seconds = Integer.parseInt(eventStartTime.substring(4, 6));
+    	        		
+    	        		//Invalid Start Time
+    	        		if(hours > 23 || minutes > 59 || seconds > 59){
     	        			
     	        			success = -3;
     	        			
     	        		}
     	        		
     	        	}
+    	        		  	
+    	        }
+    	        else if(line.contains("DTEND") && (success == 0 || success == -3)){
+    	        	
+    	        	eventInfo = line.split(":", 2);
+    	        	eventTimes = eventInfo[1].split("T", 2);
+    	        	eventEndTime = eventTimes[1];
+    	        	eventEndDate = eventTimes[0];
     	        	
     	        	try{
     	        		
     	        		end = Integer.parseInt(eventEndTime);
-    	        		//Verifies that the start & end times are valid
-        	        	if(start < 0 || end <= 0 || start > end || start > 240000 || end > 240000){
-            	        	
-            	        	success = -3;
-            	        	
-            	        }
-        	        	
+    	        		
     	        	}
     	        	catch(NumberFormatException b){
     	        		
     	        		success = -3;
+    	        		
+    	        	}
+    	        	
+    	        	//Establishes the date all events must be on (performed only once)
+    	        	if(stDate.equals("")){
+    	        		
+    	        		stDate = eventEndDate;
+    	        		
+    	        	}
+    	        	//Verifies valid DTEND field
+    	        	if(end == 0 || end >= 240000|| eventEndTime.length() != 6 || !stDate.equals(eventEndDate) || eventEndDate.length() != 8 || !eventInfo[1].contains("T")){
+    	        		
+    	        		success = -3;
+    	        		
+    	        	}
+    	        	else{
+    	        		
+    	        		hours = Integer.parseInt(eventEndTime.substring(0, 2));
+    	        		minutes = Integer.parseInt(eventEndTime.substring(2, 4));
+    	        		seconds = Integer.parseInt(eventEndTime.substring(4, 6));
+    	        		
+    	        		//Invalid End Time
+    	        		if(hours > 23 || minutes > 59 || seconds > 59){
+    	        			
+    	        			success = -3;
+    	        			
+    	        		}
     	        		
     	        	}
     	        	
@@ -179,8 +212,14 @@ public class freeTimeMaker {
     	        	}
     	        	
     	        }
+    	        else if(line.contains("SUMMARY")){
+    	        	
+    	        	eventInfo = line.split(":", 2);
+					eventName = eventInfo[1];
+					
+    	        }
     	        
-				if(success == 0){
+				if(success == 0 && line.equals("END:VEVENT")){
 					
 					//Inputs valid busy times into the TreeMap that records time slots that can't be filled by free time events
 	    	        if(start >= 0 && end < 240000 && start < end){
@@ -189,13 +228,14 @@ public class freeTimeMaker {
 	    	        		
 	    	        		if(busyTimes.get(start) < end){
 	    	        			
+	    	        			//System.out.println("BT Put: " + start + ", " + end);
 	    	        			busyTimes.put(start, end);
 	    	        			
 	    	        		}
 	    	        		
 	    	        	}
 	    	        	else{
-	    	        		
+	    	        		//System.out.println("BT Put: " + start + ", " + end);
 	    	        		busyTimes.put(start, end);
 	    	        		
 	    	        	}
@@ -206,38 +246,37 @@ public class freeTimeMaker {
 	    	        }
 	    	        
 				}
-				
-				//An error (-2, -3) has been found in a calendar event
-				else{
+				//An error (-2, -3) has been found in a calendar event in the icsFile
+				else if(success < -1 && line.equals("END:VEVENT")){
 					
-					if(line.contains("SUMMARY")){
-						
-						eventInfo = line.split(":", 2);
-						eventName = eventInfo[1];
-						System.out.print("ERROR [busySlots(" + icsFile + ")]: ");
-						
-						switch(success){
-						
-							case -2: System.out.print("The event, " + eventName + ", has a different time zone than the set time zone for calendar events.");
-									 System.out.println("Set Time Zone for calendar events: " + stTz);
-									 System.out.println("Event " + eventName + "'s time zone: " + tz);
-									 break;
-							case -3: System.out.print("The event, " + eventName + ", has an invalid start/end time.");
-									 System.out.println("Set Date for calendar events: " + stDate);
-									 System.out.println("An event's start date & time must be before its end date & time (times must be positive whole # > 0 & < 240000.");
-									 System.out.println("Event " + eventName + "'s Start: " + eventDate + "T" + eventStartTime);
-									 System.out.println("Event " + eventName + "'s End: " + eventDate + "T" + eventEndTime);
-									 break;
-							default: break;
+					System.out.print("ERROR [busySlots(" + icsFile + ")]: ");
+					
+					switch(success){
+					
+						case -2: System.out.println("The event, " + eventName + ", has an invalid time zone for calendar events.");
+								 System.out.println("All events' time zone must have no spaces, have a '/', and must all be the same.");
+								 System.out.println("Set Time Zone for calendar events: " + stTz);
+								 System.out.println("Event " + eventName + "'s time zone: " + tz);
+								 break;
+						case -3: System.out.println("The event, " + eventName + ", has an invalid start/end time.");
+								 System.out.println("All events' start/end time:");
+								 System.out.println(". start date & time must be before its end date & time");
+								 System.out.println(". date of events must all be the same and a valid date");
+								 System.out.println(". times must be positive whole 6-digit # >= 000000 & < 240000.");
+								 System.out.println("Set Date for calendar events: " + stDate);
+								 System.out.println("Event " + eventName + "'s Start: " + eventStartDate + "T" + eventStartTime);
+								 System.out.println("Event " + eventName + "'s End: " + eventEndDate + "T" + eventEndTime);
+								 break;
+						default: break;
 							
-						}
-						break;
-						
 					}
+					
+					//Error in icsFile - stop all operations
+					break;
+
 				}
 				
-			}
-			
+			}			
 			reader.close();
 			
 		}
@@ -263,10 +302,10 @@ public class freeTimeMaker {
 	 */
 	public int ftSlots(){
 		
-		int startofDay = 000000;
 		maxStart = 0;
 		maxEnd = 0;
 		
+		int startofDay = 000000;
 		int success = 0;
 		
 		if(busyTimes.size() == 0 || allICSFilesRead == 0){
@@ -280,18 +319,23 @@ public class freeTimeMaker {
 			//Inputs free time slots into the freeTimes TreeMap that will be used to create free time events in the ftEvent() method
 			for(Map.Entry<Integer, Integer> bt : busyTimes.entrySet()){
 				
-				if(maxStart == 0){
+				if(maxStart == 0 && maxEnd == 0){
 					
 					maxStart = bt.getKey();
 					maxEnd = bt.getValue();
-					
-					freeTimes.put(startofDay, maxStart);
+					//System.out.println("Max Start: " + maxStart);
+					if(maxStart > 0){
+						
+						freeTimes.put(startofDay, maxStart);
+						
+					}
 					
 				}
 				else{
 					
 					if(bt.getKey() > maxEnd){
 						
+						//System.out.println("Put: " + maxEnd + ", " + bt.getKey());
 						freeTimes.put(maxEnd, bt.getKey());
 						maxStart = bt.getKey();
 						maxEnd = bt.getValue();
@@ -310,7 +354,7 @@ public class freeTimeMaker {
 			//Inputs a free time event into the TreeMap of time remaining in the day after the last busy event
 			if(maxEnd < 235959){
 				
-				freeTimes.put(maxEnd, 235959 );
+				freeTimes.put(maxEnd, 235959);
 				
 			}
 			
@@ -354,7 +398,16 @@ public class freeTimeMaker {
 				
 				for(int b = start.length(); b < 6; b++){
 					
-					start.insert(0, "0");
+					if(Integer.parseInt(start.toString()) < 100000 && b == start.length()){
+						
+						start.insert(0, "0");
+						
+					}
+					else{
+						
+						start.append("0");
+						
+					}
 					
 				}
 				
@@ -364,7 +417,16 @@ public class freeTimeMaker {
 				
 				for(int c = end.length(); c < 6; c++){
 					
-					end.insert(0, "0");
+					if(Integer.parseInt(end.toString()) < 100000 && c == end.length()){
+						
+						end.insert(0, "0");
+						
+					}
+					else{
+						
+						end.append("0");
+						
+					}
 					
 				}
 				
