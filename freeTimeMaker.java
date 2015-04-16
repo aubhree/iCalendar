@@ -27,6 +27,7 @@ public class freeTimeMaker {
 	private int allICSFilesRead = 0;
 	private int maxStart = 0;
 	private int maxEnd = 0;
+	private int FILECOUNT;
 	
 	/*
 	 * Processes all events in the specified .ics file and verifies that all events meet the req. for Check-In 2.  
@@ -445,7 +446,11 @@ public class freeTimeMaker {
 		    pw.println("DTEND:" + stDate + "T" + end.toString());
 		    pw.println("LOCATION:" + local);
 		    pw.println("PRIORITY:0");
-		    pw.println("SUMMARY:FREE TIME");
+		    if (FILECOUNT > 1){
+		    	pw.println("SUMMARY:POSSIBLE MEETING TIME")
+		    }else{
+		    	pw.println("SUMMARY:FREE TIME");
+		    }
 		    pw.println("END:VEVENT");
 		    
 		}
@@ -494,8 +499,8 @@ public class freeTimeMaker {
 	 * 			   -1 - no ics file names/paths were given as arguments
 	 * @throws FileNotFoundException
 	 */
-	public int ftCreator(HashSet<String> icsFiles) throws FileNotFoundException{
-		
+	public int ftCreator(HashSet<String> icsFiles, int fileCount) throws FileNotFoundException{
+		FILECOUNT = fileCount;
 		int busySuccess = 1;
 		int ftSuccess = 1;
 		int success = 0;
