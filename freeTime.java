@@ -46,7 +46,7 @@ public class freeTime
     		
     		freeTimeMaker ftm = new freeTimeMaker();
     		
-    		System.out.println("Status: " + ftm.ftCreator(icsFiles));
+    		System.out.println("Status: " + ftm.ftCreator(icsFiles, args.length));
     		
     	}
     	
