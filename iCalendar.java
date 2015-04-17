@@ -17,6 +17,8 @@ public class iCalendar {
 
     int numEvent = 1;
     
+    boolean start = true;
+    
     String uzone = "";
     String fmtDate = "";
     
@@ -24,7 +26,7 @@ public class iCalendar {
     File file = new File("ourCalendar.ICS");
     PrintWriter printWriter = new PrintWriter(file);
       
-    newFile.printToFile(uzone, numEvent, file, fmtDate, printWriter);  
+    newFile.printToFile(uzone, numEvent, file, fmtDate, printWriter, start);  
   }
 }
 

@@ -22,9 +22,14 @@ public class createFile {
   *  @return int tracks amount of events
   */
   
-  public int printToFile(String uzone, int numEvent, File file, String fmtDate, PrintWriter printWriter) throws FileNotFoundException {
+  public int printToFile(String uzone, int numEvent, File file, String fmtDate, PrintWriter printWriter, boolean start) throws FileNotFoundException {
     
-    printWriter.println("BEGIN:VCALENDAR");
+	if(start){
+		
+		printWriter.println("BEGIN:VCALENDAR");
+		
+	}
+  
     printWriter.println("VERSION:2.0");
     printWriter.println(classType());
     printWriter.println("BEGIN:VTIMEZONE");
@@ -41,7 +46,6 @@ public class createFile {
     printWriter.println(priority());
     printWriter.println(summary());
     printWriter.println("END:VEVENT");
-    printWriter.println("END:VCALENDAR"); 
     
     numEvent++;
     
@@ -50,7 +54,8 @@ public class createFile {
       int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
       if (reply == JOptionPane.YES_OPTION) {
         
-        numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter);
+    	start = false;
+        numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter, start);
         
         return numEvent;
       }
@@ -58,11 +63,14 @@ public class createFile {
       else {
         
         JOptionPane.showMessageDialog(null, "Goodbye.");
+        printWriter.println("END:VCALENDAR"); 
         printWriter.close();
         System.exit(0);
         
-      }  
+      }
+      
     }
+    
   }
   
   /**
@@ -243,7 +251,9 @@ public class createFile {
       try {
             
         month = JOptionPane.showInputDialog("Enter the numerical Month (e.g. 01 - 12): ");
+        
         temp = Integer.parseInt(month);
+        
       }
         
       catch (NumberFormatException e) {
@@ -251,6 +261,7 @@ public class createFile {
         JOptionPane.showMessageDialog(null, "Invalid option");
           
         continue;
+        
       }
         
       if (temp >= 1 && temp <= 12) {
@@ -277,6 +288,7 @@ public class createFile {
       try {
             
         day = JOptionPane.showInputDialog("Enter the Day (e.g. 01 - 31): ");
+        
         tempDay = Integer.parseInt(day);
       }
         
