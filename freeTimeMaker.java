@@ -537,8 +537,12 @@ public class freeTimeMaker {
 				
 				//freeTimes TreeMap was successfully created
 				if(ftSuccess == 0){
-					
-					File file = new File("availableTimes.ICS");
+					if (FILECOUNT > 1){
+						File file = new File ("PossibleMeetingTimes.ICS");
+						
+					}else{
+						File file = new File("FreeTimes.ICS");
+					}
 				    PrintWriter printWriter = new PrintWriter(file);
 				    
 				    printWriter.println("BEGIN:VCALENDAR");
