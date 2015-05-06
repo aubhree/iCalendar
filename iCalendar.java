@@ -13,7 +13,12 @@ import javax.swing.JOptionPane;
 
 public class iCalendar {
   
-  public static void main(String [] args) throws FileNotFoundException {
+  public iCalendar() {
+    
+  }
+  
+
+  public void createEvent(int i) throws FileNotFoundException {
 
     int numEvent = 1;
     
@@ -21,12 +26,13 @@ public class iCalendar {
     
     String uzone = "";
     String fmtDate = "";
-    
+        
     createFile newFile = new createFile();
-    File file = new File("ourCalendar.ICS");
+    File file = new File("ourCalendar" + i + ".ICS");
     PrintWriter printWriter = new PrintWriter(file);
       
     newFile.printToFile(uzone, numEvent, file, fmtDate, printWriter, start);  
+
   }
 }
 
