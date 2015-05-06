@@ -54,18 +54,18 @@ public class createFile {
       int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
       if (reply == JOptionPane.YES_OPTION) {
         
-    	start = false;
+    	  start = false;
         numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter, start);
         
         return numEvent;
       }
       
       else {
-        
-        JOptionPane.showMessageDialog(null, "Goodbye.");
+        JOptionPane.showMessageDialog(null, "Okay.");
         printWriter.println("END:VCALENDAR"); 
         printWriter.close();
-        System.exit(0);
+        return 0;
+        //System.exit(0);
         
       }
       
