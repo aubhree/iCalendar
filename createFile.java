@@ -47,29 +47,29 @@ public class createFile {
     printWriter.println(summary());
     printWriter.println("END:VEVENT");
     
-    numEvent++;
+    //numEvent++;
     
-    while (true) {
+    //while (true) {
       
-      int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
-      if (reply == JOptionPane.YES_OPTION) {
+      //int reply = JOptionPane.showConfirmDialog(null,  "Would you like to create more events for this day?", "Continue Option", JOptionPane.YES_NO_OPTION);
+      //if (reply == JOptionPane.YES_OPTION) {
         
-    	  start = false;
-        numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter, start);
+    	  //start = false;
+        //numEvent = printToFile(uzone, numEvent, file, fmtDate, printWriter, start);
         
-        return numEvent;
-      }
+        //return numEvent;
+      //}
       
-      else {
-        JOptionPane.showMessageDialog(null, "Okay.");
+      //else {
+        //JOptionPane.showMessageDialog(null, "Okay.");
         printWriter.println("END:VCALENDAR"); 
         printWriter.close();
         return 0;
         //System.exit(0);
         
-      }
+      //}
       
-    }
+    //}
     
   }
   
