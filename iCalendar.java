@@ -13,7 +13,12 @@ import javax.swing.JOptionPane;
 
 public class iCalendar {
   
-  public static void main(String [] args) throws FileNotFoundException {
+  public iCalendar() {
+    
+  }
+  
+
+  public void createEvent() throws FileNotFoundException {
 
     int numEvent = 1;
     

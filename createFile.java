@@ -65,7 +65,7 @@ public class createFile {
         JOptionPane.showMessageDialog(null, "Goodbye.");
         printWriter.println("END:VCALENDAR"); 
         printWriter.close();
-        System.exit(0);
+        //System.exit(0);
         
       }
       
